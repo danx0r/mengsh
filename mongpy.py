@@ -15,11 +15,11 @@ except:
     config = _config()
 
 class foo(me.DynamicDocument):         
-    _id = me.DynamicField(primary_key = True)
+    pass
 
 me.connect("test")
 print foo.objects
 # print foo.objects[0].ass
 q = foo.objects(ass__gt = 100)
 print q._query
-print q[0].ass
+# print q[0].ass
