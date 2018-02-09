@@ -4,26 +4,16 @@
 import pymongo as pm
 import mongoengine as me
 
-try:
-    import config
-except:
-    class _config:
-        host = "127.0.0.1"
-        port = 27017
-        user = ""
-        password = ""
-    config = _config()
-
-class foo(me.DynamicDocument):         
+class dyndoc(me.DynamicDocument):         
     pass
+dyndoc_instance = dyndoc()
 
-me.connect("test")
-print foo.objects
-# print foo.objects[0].ass
-qu = foo.objects(bar__gt = 100)._query
-print qu
+def make_query(*args, **kw):
+    qu = me.Q(**kw).to_query(dyndoc_instance)
+    return qu
 
+qu = make_query(bar__gt = 222)
 con=pm.mongo_client.MongoClient()
 db = con.test2
 q = db.foo2.find(qu)
-print q[0], q[0]['bar']
+print q[0]
