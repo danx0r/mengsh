@@ -20,6 +20,10 @@ class foo(me.DynamicDocument):
 me.connect("test")
 print foo.objects
 # print foo.objects[0].ass
-q = foo.objects(ass__gt = 100)
-print q._query
-# print q[0].ass
+qu = foo.objects(bar__gt = 100)._query
+print qu
+
+con=pm.mongo_client.MongoClient()
+db = con.test2
+q = db.foo2.find(qu)
+print q[0], q[0]['bar']
