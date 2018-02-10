@@ -1,5 +1,3 @@
-class ppx:
-    pass
 #
 # pretty-print a JSON type dict/list:
 #

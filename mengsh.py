@@ -24,22 +24,6 @@ for host in ['host', 'host1', 'host2', 'host3']:
     print mongo
     print meng.connect(host = mongo, alias=host)
 
-
-# class foo1(meng.DynamicDocument):
-#     meta = {
-#         'collection': 'foo',
-#         'db_alias': 'host'
-#     }
-#     
-# class foo2(meng.DynamicDocument):
-#     meta = {
-#         'collection': 'foo',
-#         'db_alias': 'host2'
-#     }
-# 
-# print "1", foo1.objects[0].arse
-# print "2", foo2.objects[0].arse
-
 create_template="""
 class {0}(meng.DynamicDocument):
     _id = meng.DynamicField(primary_key = True)
