@@ -15,14 +15,15 @@ parser.add_argument('--host3')
 
 args = parser.parse_args()
 
-for host in ['host', 'host1', 'host2', 'host3']:
-    mongo = getattr(args, host)
+for hostname in ['host', 'host1', 'host2', 'host3']:
+    mongo = getattr(args, hostname)
     if not mongo:
         continue
     if mongo.find("mongodb://") != 0:
         mongo = "mongodb://127.0.0.1:27017/" + mongo
     print mongo
-    print meng.connect(host = mongo, alias=host)
+    con = meng.connect(host = mongo, alias=hostname)
+    globals()[hostname.replace('host','db')] = con.get_default_database()
 
 create_template="""
 class {0}(meng.DynamicDocument):
@@ -33,7 +34,7 @@ class {0}(meng.DynamicDocument):
         'collection': '{1}',
         'db_alias': '{2}'
     }}
-globals()['{0}'] = {0}  
+globals()['{0}'] = {0}
 """
 
 def create(*args, **kw):
