@@ -15,14 +15,21 @@ parser.add_argument('--host3')
 
 args = parser.parse_args()
 
-for hostname in ['host', 'host1', 'host2', 'host3']:
+HOSTNAMES = ['host', 'host1', 'host2', 'host3']
+
+hosts = []
+dbs = []
+for hostname in HOSTNAMES:
     mongo = getattr(args, hostname)
     if not mongo:
         continue
     if mongo.find("mongodb://") != 0:
         mongo = "mongodb://127.0.0.1:27017/" + mongo
-    print mongo
+#     print mongo
     con = meng.connect(host = mongo, alias=hostname)
+    hosts.append(con)
+    dbs.append(con.get_default_database())
+    globals()[hostname] = con
     globals()[hostname.replace('host','db')] = con.get_default_database()
 
 create_template="""
@@ -48,8 +55,22 @@ def create(*args, **kw):
     exe = create_template.format(classname, collectionname, hostname)
     print exe                        
     exec(exe)
-
-create(foo = 0)
-create(foo = 2)
-print foo.objects
-print foo_2.objects
+    
+def refresh():
+    for hostname in HOSTNAMES:
+        mongo = getattr(args, hostname)
+        if not mongo:
+            continue
+        i = 0 if hostname=='host' else int(hostname.replace('host', ''))
+        d = globals()[hostname.replace('host', 'db')]
+        print i, d
+        for c in d.collection_names():
+            if c != "system.indexes":
+                print c
+                create(**{c:i})
+# 
+# create(foo = 0)
+# create(foo = 2)
+# print foo.objects
+# print foo_2.objects
+refresh()
