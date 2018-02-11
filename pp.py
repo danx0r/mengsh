@@ -60,7 +60,7 @@ def pp_json_dict(d, indent, typ=None):
         if fout == sys.stdout:
             print(s, end=' ', file=fout)
         else:
-            print(s.encode('utf-8'), end=' ', file=fout)
+            print(s, end=' ', file=fout)
         val = d[key]
         if is_atomic(val):
             pp_json_atom(val)
@@ -115,18 +115,7 @@ def pp_json_atom(val, cr = True):
             s += " " + val + ","
         else:
             s += " " + str(val) + ","
-        if fout == sys.stdout:
-            try:
-                print(s, end=' ', file=fout)
-            except:
-                print(s.encode('utf-8'), end=' ', file=fout)
-        else:
-            ### dbm removed attempt to clean up unicode handling
-#             try:
-#                 s = s.encode('utf-8')
-#             except:
-#                 s = s.decode('latin-1').encode('utf-8')
-            print(s, end=' ', file=fout)
+        print(s, end=' ', file=fout)
     else:
         if "bson.objectid" in str(type(val)):
             print(val, end=' ', file=fout)
@@ -149,10 +138,10 @@ def pp(j, indent=0, as_str=False):
             print("-----------error in pp-----------")
             print(traceback.format_exc(), file=sys.stderr)
         ret = fout.getvalue()
-        try:
-            ret = ret.encode('utf-8')
-        except:
-            ret = ret.decode('latin-1').encode('utf-8')
+#         try:
+#             ret = ret.encode('utf-8')
+#         except:
+#             ret = ret.decode('latin-1').encode('utf-8')
         fout = sys.stdout
         return ret
 #     print "DEBUG pp top:", type(j), j, indent
@@ -173,16 +162,19 @@ def pp(j, indent=0, as_str=False):
                 pprint(j, fout)
 
 if __name__ == "__main__":
-# #     u = u'\u8349\u67f3\u8bba\u575b\u5730\u5740'
-#     u = '\xe1'
-#     x = {u:u,'zzz':123456, 'aaa':"simple strings"}
-# #     x['zz-top'] = {'subdict:': u'\u575b\u5730'}
-# #     x['listless'] = [1,2,3]
-# #     x['bad_ascii'] = u'\xa0'
-#     s = pp(x, as_str=True)
+#     u = u'\u8349\u67f3\u8bba\u575b\u5730\u5740'
+    u = '\xe1'
+    x = {u:u,'zzz':123456, 'aaa':"simple strings"}
+#     x['zz-top'] = {'subdict:': u'\u575b\u5730'}
+#     x['listless'] = [1,2,3]
+#     x['bad_ascii'] = u'\xa0'
+    s = pp(x, as_str=True)
+    print("-----------back from pp-----------")
+    print(s)
     pp([1,2,3,{}])
     pp([1,2,3,{1:23}])
     s=pp([1,2,3,{}],as_str=True)
+    print("-----------back from pp-----------")
     print(s)
     s=pp([1,2,3,{1:23}],as_str=True)
     print("-----------back from pp-----------")
