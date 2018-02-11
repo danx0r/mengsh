@@ -45,7 +45,7 @@ globals()['{0}'] = {0}
 """
 
 def create(*args, **kw):
-    classname = kw.keys()[0]
+    classname = list(kw.keys())[0]
     collectionname = classname
     host = kw[classname]
     hostname = 'host'
@@ -63,10 +63,10 @@ def refresh():
             continue
         i = 0 if hostname=='host' else int(hostname.replace('host', ''))
         d = globals()[hostname.replace('host', 'db')]
-        print i, d
+        print(i, d)
         for c in d.collection_names():
             if c != "system.indexes":
-                print "host %s collection %s" % (i, c)
+                print("host %s collection %s" % (i, c))
                 create(**{c:i})
 # 
 # create(foo = 0)

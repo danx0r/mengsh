@@ -47,7 +47,7 @@ def is_dicty(x):
     return False
 
 INDENT = 4
-def pp_json_dict(d, indent, typ=None):
+def pp_json_dict(d, indent, typ=None, maxlist=MAXLISTLEN):
 #     print >> sys.stderr, "DEBUG PP dict:", type(d), d, indent, typ
     if len(d) == 0:
         print(" " * indent + "{},", file=fout)
@@ -67,24 +67,23 @@ def pp_json_dict(d, indent, typ=None):
         else:
             if len(val):
                 print("", file=fout)
-            pp(val, indent+INDENT)
+            pp(val, indent+INDENT, maxlist=maxlist)
     print(" " * indent + "},", file=fout)
 
-def pp_json_list(d, indent):
-#     print "DEBUG PP list:", type(d), d, indent
+def pp_json_list(d, indent, maxlist = MAXLISTLEN):
     if len(d) == 0:
         print("[]", file=fout)
         return
     print(" " * indent + "[", file=fout)
     j = 0
     all_atomic = True
-    for val in d[:MAXLISTLEN]:
+    for val in d[:maxlist]:
         if not is_atomic(val):
             all_atomic = False
     for key in range(len(d)):
-        if j >= MAXLISTLEN:
+        if j >= maxlist:
             if all_atomic:
-                print("...", file=fout)
+                print("...", file=fout, end='')
             else:
                 print((" " * (indent+INDENT))[:-1], "...", file=fout)
             break
@@ -95,7 +94,7 @@ def pp_json_list(d, indent):
                 print((" " * (indent+INDENT))[:-1], end=' ', file=fout)
             pp_json_atom(val, cr = False if all_atomic else True)
         else:
-            pp(val, indent+INDENT)
+            pp(val, indent+INDENT, maxlist=maxlist)
     if all_atomic:
         print(file=fout)
     print(" " * indent + "],", file=fout)
@@ -128,12 +127,13 @@ def pp_json_atom(val, cr = True):
     if cr:
         print(file=fout)
     
-def pp(j, indent=0, as_str=False):
+def pp(j, indent=0, as_str=False, maxlist=MAXLISTLEN):
+#     print ("DEBUG PP list:", maxlist)
     global fout
     if as_str:
         fout = io.StringIO()
         try:
-            pp(j, indent=indent, as_str=False)
+            pp(j, indent=indent, as_str=False, maxlist=maxlist)
         except:
             print("-----------error in pp-----------")
             print(traceback.format_exc(), file=sys.stderr)
@@ -146,18 +146,18 @@ def pp(j, indent=0, as_str=False):
         return ret
 #     print "DEBUG pp top:", type(j), j, indent
     if is_dicty(j):
-        pp_json_dict(j, indent, typ="dict")
+        pp_json_dict(j, indent, typ="dict", maxlist=maxlist)
     elif is_listy(j):
-        pp_json_list(j, indent)
+        pp_json_list(j, indent, maxlist=maxlist)
     elif str(type(j)) == "<type 'collections.defaultdict'>":
-        pp_json_dict(dict(j), indent, typ="dict")
+        pp_json_dict(dict(j), indent, typ="dict", maxlist=maxlist)
     else:
         try:
-            pp_json_dict(j._data, indent, typ="obj")
+            pp_json_dict(j._data, indent, typ="obj", maxlist=maxlist)
         except:
             try:
                 if j.count():
-                    pp_json_list(list(j), indent)
+                    pp_json_list(list(j), indent, maxlist=maxlist)
             except:
                 pprint(j, fout)
 
@@ -179,3 +179,5 @@ if __name__ == "__main__":
     s=pp([1,2,3,{1:23}],as_str=True)
     print("-----------back from pp-----------")
     print(s)
+    pp([1,2,3,4,5,6,7,7,6,5,4,3,2,1])
+    
