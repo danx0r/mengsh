@@ -77,12 +77,12 @@ def pp_json_list(d, indent, maxlist = MAXLISTLEN):
     if len(d) == 0:
         print("[]", file=fout)
         return
-    print(" " * indent + "[", file=fout)
     j = 0
     all_atomic = True
     for val in d[:maxlist]:
         if not is_atomic(val):
             all_atomic = False
+    print(" " * indent + "[", file=fout, end='' if all_atomic else '\n')
     for key in range(len(d)):
         if j >= maxlist:
             s = GREEN % ("<%d more>" % (len(d)-maxlist))
@@ -94,14 +94,12 @@ def pp_json_list(d, indent, maxlist = MAXLISTLEN):
         j += 1
         val = d[key]
         if is_atomic(val):
-            if j == 1 or not all_atomic:
+            if not all_atomic:
                 print((" " * (indent+INDENT))[:-1], end=' ', file=fout)
             pp_json_atom(val, cr = False if all_atomic else True)
         else:
             pp(val, indent+INDENT, maxlist=maxlist)
-    if all_atomic:
-        print(file=fout)
-    print(" " * indent + "],", file=fout)
+    print(" " * (0 if all_atomic else indent) + "],", file=fout)
 
 def pp_json_atom(val, cr = True):
 #     print "DEBUG PP atom:", type(val), val
