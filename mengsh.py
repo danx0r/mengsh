@@ -8,7 +8,7 @@ from pp import pp
 
 parser = argparse.ArgumentParser(description=__doc__)
 
-parser.add_argument('--host', default = "127.0.0.1")    
+parser.add_argument('--host', default = "mongodb://127.0.0.1/default")    
 parser.add_argument('--host1')
 parser.add_argument('--host2')
 parser.add_argument('--host3')    
@@ -53,7 +53,7 @@ def create(*args, **kw):
         classname += "_%s" % host
         hostname += "%s" % host
     exe = create_template.format(classname, collectionname, hostname)
-    print exe                        
+#     print exe                        
     exec(exe)
     
 def refresh():
@@ -66,7 +66,7 @@ def refresh():
         print i, d
         for c in d.collection_names():
             if c != "system.indexes":
-                print c
+                print "host %s collection %s" % (i, c)
                 create(**{c:i})
 # 
 # create(foo = 0)

@@ -6,6 +6,8 @@ from datetime import datetime
 from pprint import pprint
 fout = sys.stdout
 
+MAXLISTLEN = 10
+
 def is_atomic(x):
 #     return type(x) in (str, unicode, int, float, bool, datetime, type(None))
     if 'mongoengine' in str(type(x)):
@@ -41,16 +43,17 @@ INDENT = 4
 def pp_json_dict(d, indent, typ=None):
 #     print >> sys.stderr, "DEBUG PP dict:", type(d), d, indent, typ
     if len(d) == 0:
-        print >> fout, "{}"
+        print >> fout, " " * indent + "{},"
         return
     print >> fout, " " * indent + "{"
     keys = d.keys()
     keys.sort()
     for key in keys:
+        s = " " * (indent+INDENT) + ((".%s" % key) if typ=="obj" else ("'%s'" % key) if is_stringy(key) else ("%s" % key)) + ":"
         if fout == sys.stdout:
-            print >> fout, " " * (indent+INDENT) + (("." + key) if typ=="obj" else ("'" + key + "'")) + ":",
+            print >> fout, s,
         else:
-            print >> fout, (" " * (indent+INDENT) + (("." + key) if typ=="obj" else ("'" + key + "'")) + ":").encode('utf-8'),
+            print >> fout, s.encode('utf-8'),
         val = d[key]
         if is_atomic(val):
             pp_json_atom(val)
@@ -66,16 +69,31 @@ def pp_json_list(d, indent):
         print >> fout, "[]"
         return
     print >> fout, " " * indent + "["
+    j = 0
+    all_atomic = True
+    for val in d[:MAXLISTLEN]:
+        if not is_atomic(val):
+            all_atomic = False
     for key in range(len(d)):
+        if j >= MAXLISTLEN:
+            if all_atomic:
+                print >> fout, "..."
+            else:
+                print >> fout, (" " * (indent+INDENT))[:-1], "..."
+            break
+        j += 1
         val = d[key]
         if is_atomic(val):
-            print >> fout, (" " * (indent+INDENT))[:-1],
-            pp_json_atom(val)
+            if j == 1 or not all_atomic:
+                print >> fout, (" " * (indent+INDENT))[:-1],
+            pp_json_atom(val, cr = False if all_atomic else True)
         else:
             pp(val, indent+INDENT)
+    if all_atomic:
+        print >> fout
     print >> fout, " " * indent + "],"
 
-def pp_json_atom(val):
+def pp_json_atom(val, cr = True):
 #     print "DEBUG PP atom:", type(val), val
     if type(val) in (int, long, float, str, unicode, bool, datetime, type(None)):
         s = ""
@@ -92,25 +110,27 @@ def pp_json_atom(val):
             s += " " + str(val) + ","
         if fout == sys.stdout:
             try:
-                print >> fout, s
+                print >> fout, s,
             except:
-                print >> fout, s.encode('utf-8')
+                print >> fout, s.encode('utf-8'),
         else:
             ### dbm removed attempt to clean up unicode handling
 #             try:
 #                 s = s.encode('utf-8')
 #             except:
 #                 s = s.decode('latin-1').encode('utf-8')
-            print >> fout, s
+            print >> fout, s,
     else:
         if "bson.objectid" in str(type(val)):
-            print >> fout, val
+            print >> fout, val,
         else:
             print >> fout, type(val),
             try:
                 print >> fout, len(val), "bytes"
             except:
                 print >> fout, ""
+    if cr:
+        print >> fout
     
 def pp(j, indent=0, as_str=False):
     global fout
@@ -146,12 +166,17 @@ def pp(j, indent=0, as_str=False):
                 pprint(j, fout)
 
 if __name__ == "__main__":
-#     u = u'\u8349\u67f3\u8bba\u575b\u5730\u5740'
-    u = '\xe1'
-    x = {u:u,'zzz':123456, 'aaa':"simple strings"}
-#     x['zz-top'] = {'subdict:': u'\u575b\u5730'}
-#     x['listless'] = [1,2,3]
-#     x['bad_ascii'] = u'\xa0'
-    s = pp(x, as_str=True)
+# #     u = u'\u8349\u67f3\u8bba\u575b\u5730\u5740'
+#     u = '\xe1'
+#     x = {u:u,'zzz':123456, 'aaa':"simple strings"}
+# #     x['zz-top'] = {'subdict:': u'\u575b\u5730'}
+# #     x['listless'] = [1,2,3]
+# #     x['bad_ascii'] = u'\xa0'
+#     s = pp(x, as_str=True)
+    pp([1,2,3,{}])
+    pp([1,2,3,{1:23}])
+    s=pp([1,2,3,{}],as_str=True)
+    print s
+    s=pp([1,2,3,{1:23}],as_str=True)
     print "-----------back from pp-----------"
     print s
