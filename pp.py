@@ -15,6 +15,9 @@ fout = sys.stdout
 
 MAXLISTLEN = 10
 
+GREEN = '\x1b[1;32m%s\x1b[0m'
+
+
 def is_atomic(x):
 #     return type(x) in (str, unicode, int, float, bool, datetime, type(None))
     if 'mongoengine' in str(type(x)):
@@ -82,10 +85,11 @@ def pp_json_list(d, indent, maxlist = MAXLISTLEN):
             all_atomic = False
     for key in range(len(d)):
         if j >= maxlist:
+            s = GREEN % ("<%d more>" % (len(d)-maxlist))
             if all_atomic:
-                print("...", file=fout, end='')
+                print(s, file=fout, end='')
             else:
-                print((" " * (indent+INDENT))[:-1], "...", file=fout)
+                print((" " * (indent+INDENT))[:-1], s, file=fout)
             break
         j += 1
         val = d[key]
