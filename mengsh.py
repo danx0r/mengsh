@@ -23,18 +23,23 @@ HOSTNAMES = ['host', 'host1', 'host2', 'host3']
 
 hosts = []
 dbs = []
-for hostname in HOSTNAMES:
-    mongo = getattr(args, hostname)
-    if not mongo:
-        continue
-    if mongo.find("mongodb://") != 0:
-        mongo = "mongodb://127.0.0.1:27017/" + mongo
-#     print mongo
-    con = meng.connect(host = mongo, alias=hostname)
-    hosts.append(con)
-    dbs.append(con.get_default_database())
-    globals()[hostname] = con
-    globals()[hostname.replace('host','db')] = con.get_default_database()
+def init():
+    for hostname in HOSTNAMES:
+        mongo = getattr(args, hostname)
+        if not mongo:
+            continue
+        if mongo.find("mongodb://") != 0:
+            mongo = "mongodb://127.0.0.1:27017/" + mongo
+    #     print mongo
+        con = meng.connect(host = mongo, alias=hostname)
+        con.mengsh_alias = hostname
+        hosts.append(con)
+        db = con.get_default_database()
+        db.mengsh_alias = hostname.replace('host','db')
+        dbs.append(db)
+        print ("DBG", db.mengsh_alias, db)
+        globals()[hostname] = con
+        globals()[hostname.replace('host','db')] = db
 
 create_template="""
 class {0}(meng.DynamicDocument):
@@ -160,4 +165,6 @@ def copy(source,        #must be a collection
             mn = (est // 60) % 60
             sec = est % 60 
             print ("%d of %d copied, %.3f%% done, time remaining: %d:%02d:%05.2f" % (n, scnt, n*100/scnt, hr, mn, sec), end="   \r")
+
+init()
 refresh()
