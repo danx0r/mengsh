@@ -17,6 +17,8 @@ parser.add_argument('--host3')
 
 args = parser.parse_args()
 
+PURPLE = '\x1b[1;35m%s\x1b[0m'
+
 HOSTNAMES = ['host', 'host1', 'host2', 'host3']
 
 hosts = []
@@ -112,15 +114,26 @@ def copy(source,        #must be a collection
 #     print (type(q), q.count())
     scnt = source.objects.count()
     dcnt = dest.objects.count()
-    i = input("copying %d documents from %s:%s/%s/%s to %s:%s/%s/%s(%d already) -- d(elete), m(erge), a(bort)?" %
+    i = input("copying %d documents from %s:%s/%s/%s to %s:%s/%s/%s(%d already) -- %selete, %sverwrite, %serge, %sbort?" %
              (scnt, 
               source._collection.database.client.HOST, source._collection.database.client.PORT, source._collection.database.name, source.__name__,
               dest._collection.database.client.HOST, dest._collection.database.client.PORT, dest._collection.database.name, dest.__name__,
-              dcnt))
+              dcnt,
+              PURPLE % 'd',
+              PURPLE % 'o',
+              PURPLE % 'm',
+              PURPLE % 'a',
+              ))
+    over = False
     if i == 'd':
         print ("dropping %s" % dest)
         dest._collection.drop()
-    elif i != 'm':
+    elif i == 'o':
+        print ("overwriting existing data")
+        over = True
+    elif i == 'm':
+        print ("merging data; id conflicts will cause exception")
+    else:
         print ("aborting")
         return
     n = 0
@@ -128,7 +141,14 @@ def copy(source,        #must be a collection
     every = max(min(500, scnt//10), 1)
     for x in q:
 #         print (" copying", x._id)
-        dest._collection.save(x.to_mongo())
+        xm = x.to_mongo()
+        if over:
+            dest._collection.replace_one({'_id': xm['_id']}, xm, upsert = True)
+        else:
+            try:
+                dest._collection.insert_one(xm)
+            except:
+                print ("failed to copy %s                           " % xm['_id'])
         n += 1
         if n % every == 0:
             dt = time.time() - t0
