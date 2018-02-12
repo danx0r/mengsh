@@ -112,8 +112,11 @@ def copy(source,        #must be a collection
 #     print (type(q), q.count())
     scnt = source.objects.count()
     dcnt = dest.objects.count()
-    i = input("copying %d documents from %s to %s(%d already) -- d(elete), m(erge), a(bort)?" %
-             (scnt, source.__name__, dest.__name__, dcnt))
+    i = input("copying %d documents from %s:%s/%s/%s to %s:%s/%s/%s(%d already) -- d(elete), m(erge), a(bort)?" %
+             (scnt, 
+              source._collection.database.client.HOST, source._collection.database.client.PORT, source._collection.database.name, source.__name__,
+              dest._collection.database.client.HOST, dest._collection.database.client.PORT, dest._collection.database.name, dest.__name__,
+              dcnt))
     if i == 'd':
         print ("dropping %s" % dest)
         dest._collection.drop()
