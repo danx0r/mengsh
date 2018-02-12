@@ -6,6 +6,7 @@ import pymongo
 import mongoengine as meng
 from pp import pp
 from IPython.utils.py3compat import builtin_mod_name
+from pydoc import classname
 
 parser = argparse.ArgumentParser(description=__doc__)
 
@@ -49,6 +50,7 @@ def create(*args, **kw):
     classname = list(kw.keys())[0]
     collectionname = classname
     host = kw[classname]
+    classname = classname.replace('.','_')
     hostname = 'host'
     if host > 0:
         classname += "_%s" % host
@@ -67,7 +69,7 @@ def refresh():
         d = globals()[hostname.replace('host', 'db')]
         print(i, d)
         for c in d.collection_names():
-            if c != "system.indexes":
+            if c.find("system.") != 0:
                 col = create(**{c:i})
                 print("host %s %6d documents in %s" % (i, col.objects.count(), col.__name__))
 
