@@ -10,7 +10,7 @@ from pydoc import classname
 
 parser = argparse.ArgumentParser(description=__doc__)
 
-parser.add_argument('--host', default = "mongodb://127.0.0.1/default")    
+parser.add_argument('--host')    
 parser.add_argument('--host1')
 parser.add_argument('--host2')
 parser.add_argument('--host3')    
@@ -92,6 +92,15 @@ def get_base_tag(s):
 def tag_to_string(t):
     return ('_%s' % t) if t else ''
 
+def get_host_tag(h):
+    try:
+        return int(h.mengsh_alias[-1])
+    except:
+        return 0
+
+# def get_stats(col):
+#     
+
 def copy(source,        #must be a collection 
          dest,          #db, string, or collection
          **kw):         #query filter on source to copy
@@ -101,7 +110,7 @@ def copy(source,        #must be a collection
     else:
         if dest.__class__.__name__ == "Database":
             dname = sname
-            dtag = dbs.index(dest)
+            dtag = get_host_tag(dest)
         else:
             dname, dtag = get_base_tag(dest.__name__)
     dfullname = dname + tag_to_string(dtag)
@@ -119,10 +128,11 @@ def copy(source,        #must be a collection
 #     print (type(q), q.count())
     scnt = source.objects.count()
     dcnt = dest.objects.count()
+    print ("DBG", source, dest)
     i = input("copying %d documents from %s:%s/%s/%s to %s:%s/%s/%s(%d already) -- %selete, %sverwrite, %serge, %sbort?" %
              (scnt, 
-              source._collection.database.client.HOST, source._collection.database.client.PORT, source._collection.database.name, source.__name__,
-              dest._collection.database.client.HOST, dest._collection.database.client.PORT, dest._collection.database.name, dest.__name__,
+              source._collection.database.client.address[0], source._collection.database.client.address[1], source._collection.database.name, source.__name__,
+              dest._collection.database.client.address[0], dest._collection.database.client.address[1], dest._collection.database.name, dest.__name__,
               dcnt,
               PURPLE % 'd',
               PURPLE % 'o',
