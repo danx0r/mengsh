@@ -98,9 +98,10 @@ def get_host_tag(h):
     except:
         return 0
 
-# def get_stats(col):
-#     
-
+def get_stats(col):
+    name, ignor = get_base_tag(col.__name__)
+    return col._collection.database.command("collstats", name)
+    
 def copy(source,        #must be a collection 
          dest,          #db, string, or collection
          **kw):         #query filter on source to copy
@@ -151,10 +152,14 @@ def copy(source,        #must be a collection
     else:
         print ("aborting")
         return
+    avgsize = get_stats(source)['avgObjSize']
+    bytes = 0
+    print ("average document size:", avgsize)
     n = 0
     t0 = time.time()
     every = max(min(500, scnt//10), 1)
     for x in q:
+#         time.sleep(.001)
 #         print (" copying", x._id)
         xm = x.to_mongo()
         if over:
@@ -165,16 +170,20 @@ def copy(source,        #must be a collection
             except:
                 print ("failed to copy %s                           " % xm['_id'])
         n += 1
+        bytes += avgsize
         if n % every == 0:
             dt = time.time() - t0
             if dt:
                 est = scnt/n * dt - dt
+                bpers = bytes/dt
             else:
                 est = 999999
+                bpers = 0
             hr = est // 3600
             mn = (est // 60) % 60
-            sec = est % 60 
-            print ("%d of %d copied, %.3f%% done, time remaining: %d:%02d:%05.2f" % (n, scnt, n*100/scnt, hr, mn, sec), end="   \r")
+            sec = est % 60
+            print ("%d of %d copied, %.3f%% done, time remaining: %d:%02d:%05.2f mbytes/sec: %.3f" %
+                    (n, scnt, n*100/scnt, hr, mn, sec, bpers/1000000), end="   \r")
 
 init()
 refresh()
