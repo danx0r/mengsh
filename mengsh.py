@@ -127,7 +127,7 @@ def copy(source,        #must be a collection
 #     print ("dest:", dest)
     q = source.objects(**kw)
 #     print (type(q), q.count())
-    scnt = source.objects.count()
+    scnt = q.count()
     dcnt = dest.objects.count()
     print ("DBG", source, dest)
     i = input("copying %d documents from %s:%s/%s/%s to %s:%s/%s/%s(%d already)\n%selete, %sverwrite, %serge, %sest, %sbort?" %
@@ -177,7 +177,7 @@ def copy(source,        #must be a collection
                     print ("failed to copy %s                           " % xm['_id'])
         n += 1
         bytes += avgsize
-        if n % every == 0:
+        if n % every == 0 or n == scnt:
             dt = time.time() - t0
             if dt:
                 est = scnt/n * dt - dt
