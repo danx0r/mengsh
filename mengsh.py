@@ -130,7 +130,7 @@ def copy(source,        #must be a collection
     scnt = source.objects.count()
     dcnt = dest.objects.count()
     print ("DBG", source, dest)
-    i = input("copying %d documents from %s:%s/%s/%s to %s:%s/%s/%s(%d already) -- %selete, %sverwrite, %serge, %sbort?" %
+    i = input("copying %d documents from %s:%s/%s/%s to %s:%s/%s/%s(%d already)\n%selete, %sverwrite, %serge, %sest, %sbort?" %
              (scnt, 
               source._collection.database.client.address[0], source._collection.database.client.address[1], source._collection.database.name, source.__name__,
               dest._collection.database.client.address[0], dest._collection.database.client.address[1], dest._collection.database.name, dest.__name__,
@@ -138,9 +138,11 @@ def copy(source,        #must be a collection
               PURPLE % 'd',
               PURPLE % 'o',
               PURPLE % 'm',
+              PURPLE % 't',
               PURPLE % 'a',
               ))
     over = False
+    real = True
     if i == 'd':
         print ("dropping %s" % dest)
         dest._collection.drop()
@@ -149,6 +151,9 @@ def copy(source,        #must be a collection
         over = True
     elif i == 'm':
         print ("merging data; id conflicts will cause exception")
+    elif i == 't':
+        print ("test dry run, not saving to destination")
+        real = False
     else:
         print ("aborting")
         return
@@ -162,13 +167,14 @@ def copy(source,        #must be a collection
 #         time.sleep(.001)
 #         print (" copying", x._id)
         xm = x.to_mongo()
-        if over:
-            dest._collection.replace_one({'_id': xm['_id']}, xm, upsert = True)
-        else:
-            try:
-                dest._collection.insert_one(xm)
-            except:
-                print ("failed to copy %s                           " % xm['_id'])
+        if real:
+            if over:
+                dest._collection.replace_one({'_id': xm['_id']}, xm, upsert = True)
+            else:
+                try:
+                    dest._collection.insert_one(xm)
+                except:
+                    print ("failed to copy %s                           " % xm['_id'])
         n += 1
         bytes += avgsize
         if n % every == 0:
