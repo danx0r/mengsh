@@ -17,6 +17,13 @@ parser.add_argument('--host3')
 
 args = parser.parse_args()
 
+if not (args.host or args.host1 or args.host2 or args.host3):
+    print ("\x1b[1;35musage: ipython3 -i -- --host <host>")
+    print ("or:    ipython3 -i -- --host <firsthost> [--host2 <secondhost> [--host3 <thirdhost>]]")
+    print ("where host is a database name (default localhost:27017) or a fully-qualified mongodb path")
+    print ("such as mongodb://[user:password]@ipaddr_or_url/database\x1b[0m")
+    exit()
+
 PURPLE = '\x1b[1;35m%s\x1b[0m'
 
 HOSTNAMES = ['host', 'host1', 'host2', 'host3']

@@ -14,6 +14,7 @@ except:
 fout = sys.stdout
 
 MAXLISTLEN = 10
+MAXSTRLEN = 200
 
 GREEN = '\x1b[1;32m%s\x1b[0m'
 
@@ -85,7 +86,7 @@ def pp_json_list(d, indent, maxlist = MAXLISTLEN):
     print(" " * indent + "[", file=fout, end='' if all_atomic else '\n')
     for key in range(len(d)):
         if j >= maxlist:
-            s = GREEN % ("<%d more>" % (len(d)-maxlist))
+            s = GREEN % ("<+%d more>" % (len(d)-maxlist))
             if all_atomic:
                 print(s, file=fout, end='')
             else:
@@ -109,6 +110,8 @@ def pp_json_atom(val, cr = True):
             if val.find("http://") == 0:
 #                 print "DEBUG url decode raw:", type(val), val
                 val = unquote(str(val)).encode('latin-1')         #wtf is up with dat
+            if len(val) > MAXSTRLEN:
+                val = val[:MAXSTRLEN] + GREEN % (" <+%d chars>" % (len(val)-MAXSTRLEN))
             if '"' in val:
                 val = "'"+val+"'"
             else:
