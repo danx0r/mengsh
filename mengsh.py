@@ -76,16 +76,29 @@ def create(*args, **kw):
     
 def refresh():
     for hostname in HOSTNAMES:
+        totbytes = totcol = 0
         mongo = getattr(args, hostname)
         if not mongo:
             continue
         i = 0 if hostname=='host' else int(hostname.replace('host', ''))
         d = globals()[hostname.replace('host', 'db')]
         print(i, d)
-        for c in d.collection_names():
+        colnames = d.collection_names()
+        colnames.sort()
+        for c in colnames:
             if c.find("system.") != 0:
                 col = create(**{c:i})
-                print("host %s %6d documents in %s" % (i, col.objects.count(), col.__name__))
+                col.objects.limit(1)    #access forces _collection.database to exist
+                colcnt = col.objects.count()
+                totcol += colcnt
+                try:
+                    info = get_stats(col)
+                    print("host {} {:>10,} docs {:>9,} avg {:>16,} tot   {}". 
+                      format(i, colcnt, (info['avgObjSize'] if info['size'] else 0), int(info['size']), col.__name__))
+                    totbytes += info['size']
+                except:
+                    print ("    %s collection not found" % col)
+        print ("{}: {:,} bytes total in {} collections, {:,} documents".format(hostname, int(totbytes), len(colnames), totcol))
 
 def get_base_tag(s):
     if s[-2:-1] == '_':
