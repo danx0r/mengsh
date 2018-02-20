@@ -102,8 +102,12 @@ def refresh():
 
 def get_base_tag(s):
     if s[-2:-1] == '_':
-        base = s[:-2]
-        tag = int(s[-1])
+        try:
+            tag = int(s[-1])
+            base = s[:-2]
+        except:
+            base = s
+            tag = 0
     else:
         base = s
         tag = 0
@@ -121,7 +125,26 @@ def get_host_tag(h):
 def get_stats(col):
     name, ignor = get_base_tag(col.__name__)
     return col._collection.database.command("collstats", name)
-    
+
+def collections(db, show=False):
+    tag = tag_to_string(get_host_tag(db))
+    cols = []
+    for x in db.collection_names():
+        x += tag
+        try:
+            c = globals()[x]
+            size = get_stats(c)['size']
+            cols.append((size, c))
+        except:
+            print ("cannot find collection %s" % x)
+    cols.sort(key=lambda x:x[0])
+    if show:
+        for c in cols:
+            print ("{:17,} {}".format(int(c[0]), c[1].__name__))
+    else:
+        cols = [x[1] for x in cols]
+        return cols
+
 def copy(source,        #must be a collection 
          dest,          #db, string, or collection
          **kw):         #query filter on source to copy
