@@ -145,6 +145,15 @@ def collections(db, show=False):
         cols = [x[1] for x in cols]
         return cols
 
+def count(col, field):
+    col.objects.limit(1)    #access forces _collection to exist
+    values = col._collection.distinct(field)
+    ret = []
+    for v in values:
+        ret.append((v, col.objects(**{field: v}).count()))
+    ret.sort(key=lambda x:x[1], reverse=True)
+    return ret
+
 def copy(source,        #must be a collection 
          dest,          #db, string, or collection
          **kw):         #query filter on source to copy
