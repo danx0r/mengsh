@@ -1,7 +1,7 @@
 #
 # Set of utilities to manage multiple mongodb databases, collections, and hosts
 #
-import argparse, time
+import argparse, sys, time
 import pymongo
 import mongoengine as meng
 from pp import pp
@@ -154,6 +154,19 @@ def count(col, field):
     ret.sort(key=lambda x:x[1], reverse=True)
     return ret
 
+def get_indices(col):
+    if "mongoengine.base.metaclasses" in str(type(col)):
+        col = col._collection
+    ind = list(col.list_indexes())
+#     pp(ind)
+    ret = []
+    for i in ind:
+        s = i['key'].keys()[0]
+        if i['key'][s] == -1:
+            s = "-" + s
+        ret.append(s)
+    return ret
+
 def copy(source,        #must be a collection 
          dest,          #db, string, or collection
          **kw):         #query filter on source to copy
@@ -242,6 +255,12 @@ def copy(source,        #must be a collection
             sec = est % 60
             print ("%d of %d copied, %.3f%% done, time remaining: %d:%02d:%05.2f mbytes/sec: %.3f" %
                     (n, scnt, n*100/scnt, hr, mn, sec, bpers/1000000), end="   \r")
+    print ("")
+    sys.stdout.flush()
+    for ix in get_indices(source):
+        if ix != "_id":
+            print ("creating index", ix)
+            dest.create_index(ix)
 
 init()
 refresh()
