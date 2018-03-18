@@ -44,11 +44,12 @@ def is_listy(x):
     return False
 
 def is_dicty(x):
-    if type(x) == dict:
-        return True
-    if 'Dict' in str(type(x)):
-        return True
-    return False
+#     if type(x) == dict:
+#         return True
+#     if 'Dict' in str(type(x)):
+#         return True
+#     return False
+    return hasattr(x, 'keys')
 
 INDENT = 4
 def pp_json_dict(d, indent, typ=None, maxlist=MAXLISTLEN):
