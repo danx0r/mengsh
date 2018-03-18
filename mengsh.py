@@ -255,6 +255,7 @@ def copy(source,        #must be a collection
             sec = est % 60
             print ("%d of %d copied, %.3f%% done, time remaining: %d:%02d:%05.2f mbytes/sec: %.3f" %
                     (n, scnt, n*100/scnt, hr, mn, sec, bpers/1000000), end="   \r")
+            sys.stdout.flush()
     print ("")
     sys.stdout.flush()
     for ix in get_indices(source):
