@@ -227,7 +227,8 @@ def copy(source,        #must be a collection
     print ("average document size:", avgsize)
     n = 0
     t0 = time.time()
-    every = max(min(500, scnt//10), 1)
+    reptarg = t0
+#     every = max(min(500, scnt//10), 1)
     for x in q:
 #         time.sleep(.001)
 #         print (" copying", x._id)
@@ -242,7 +243,9 @@ def copy(source,        #must be a collection
                     print ("failed to copy %s                           " % xm['_id'])
         n += 1
         bytes += avgsize
-        if n % every == 0 or n == scnt:
+        newt = time.time()
+        if newt >= reptarg or n == scnt:
+            reptarg = max(newt, reptarg+1)
             dt = time.time() - t0
             if dt:
                 est = scnt/n * dt - dt
