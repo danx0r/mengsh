@@ -260,8 +260,9 @@ def copy(source,        #must be a collection
     sys.stdout.flush()
     for ix in get_indices(source):
         if ix != "_id":
-            print ("creating index", ix)
-            dest.create_index(ix)
+            print ("creating index", "NOT" if not real else "", ix)
+            if real:
+                dest.create_index(ix)
 
 init()
 refresh()
