@@ -5,8 +5,6 @@ import argparse, sys, time
 import pymongo
 import mongoengine as meng
 from pp import pp
-from IPython.utils.py3compat import builtin_mod_name
-from pydoc import classname
 
 parser = argparse.ArgumentParser(description=__doc__)
 
