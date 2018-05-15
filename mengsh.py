@@ -36,7 +36,7 @@ def init():
         if mongo.find("mongodb://") != 0:
             mongo = "mongodb://127.0.0.1:27017/" + mongo
     #     print mongo
-        con = meng.connect(host = mongo, alias=hostname)
+        con = meng.connect(host = mongo, alias=hostname, socketTimeoutMS=10000)
         con.mengsh_alias = hostname
         hosts.append(con)
         db = con.get_default_database()
@@ -167,6 +167,7 @@ def get_indices(col):
 
 def copy(source,        #must be a collection 
          dest,          #db, string, or collection
+         resume = False,
          **kw):         #query filter on source to copy
     sname, ignore = get_base_tag(source.__name__)
     if type(dest) == str:
@@ -188,8 +189,12 @@ def copy(source,        #must be a collection
         create(**{dname:dtag})
     dest = globals()[dname + tag_to_string(dtag)]
 #     print ("dest:", dest)
-    q = source.objects(**kw)
-#     print (type(q), q.count())
+    if resume:
+        t = dest.objects().order_by("-_id")[0].id
+        kw.update({"_id__gte": t})
+    print("query:", kw)
+    q = source.objects(**kw).order_by("_id")
+    # print (type(q), q.count())
     scnt = q.count()
     dcnt = dest.objects.count()
     print ("DBG", source, dest)
