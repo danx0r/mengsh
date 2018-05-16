@@ -168,6 +168,7 @@ def get_indices(col):
 def copy(source,        #must be a collection 
          dest,          #db, string, or collection
          resume = False,
+         key = None,
          **kw):         #query filter on source to copy
     sname, ignore = get_base_tag(source.__name__)
     if type(dest) == str:
@@ -198,17 +199,20 @@ def copy(source,        #must be a collection
     scnt = q.count()
     dcnt = dest.objects.count()
     print ("DBG", source, dest)
-    i = input("copying %d documents from %s:%s/%s/%s to %s:%s/%s/%s(%d already)\n%selete, %sverwrite, %serge, %sest, %sbort?" %
-             (scnt, 
-              source._collection.database.client.address[0], source._collection.database.client.address[1], source._collection.database.name, source.__name__,
-              dest._collection.database.client.address[0], dest._collection.database.client.address[1], dest._collection.database.name, dest.__name__,
-              dcnt,
-              PURPLE % 'd',
-              PURPLE % 'o',
-              PURPLE % 'm',
-              PURPLE % 't',
-              PURPLE % 'a',
-              ))
+    if not key:
+        i = input("copying %d documents from %s:%s/%s/%s to %s:%s/%s/%s(%d already)\n%selete, %sverwrite, %serge, %sest, %sbort?" %
+                 (scnt,
+                  source._collection.database.client.address[0], source._collection.database.client.address[1], source._collection.database.name, source.__name__,
+                  dest._collection.database.client.address[0], dest._collection.database.client.address[1], dest._collection.database.name, dest.__name__,
+                  dcnt,
+                  PURPLE % 'd',
+                  PURPLE % 'o',
+                  PURPLE % 'm',
+                  PURPLE % 't',
+                  PURPLE % 'a',
+                  ))
+    else:
+        i = key
     over = False
     real = True
     if i == 'd':
