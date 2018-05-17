@@ -191,8 +191,10 @@ def copy(source,        #must be a collection
     dest = globals()[dname + tag_to_string(dtag)]
 #     print ("dest:", dest)
     if resume:
-        t = dest.objects().order_by("-_id")[0].id
-        kw.update({"_id__gte": t})
+        q = dest.objects().order_by("-_id")
+        if q.count():
+            t = q[0].id
+            kw.update({"_id__gte": t})
     print("query:", kw)
     q = source.objects(**kw).order_by("_id")
     # print (type(q), q.count())
