@@ -2,7 +2,7 @@
 # Set of utilities to manage multiple mongodb databases, collections, and hosts
 #
 import argparse, sys, time
-import pymongo
+import psutil
 import mongoengine as meng
 from pp import pp
 
@@ -169,6 +169,7 @@ def copy(source,        #must be a collection
          dest,          #db, string, or collection
          resume = False,
          key = None,
+         die = 111,
          **kw):         #query filter on source to copy
     sname, ignore = get_base_tag(source.__name__)
     if type(dest) == str:
@@ -239,6 +240,8 @@ def copy(source,        #must be a collection
     reptarg = t0
 #     every = max(min(500, scnt//10), 1)
     for x in q:
+        if die < psutil.virtual_memory().percent:
+            exit()
 #         time.sleep(.001)
 #         print (" copying", x._id)
         xm = x.to_mongo()
