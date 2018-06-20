@@ -121,7 +121,8 @@ def get_host_tag(h):
         return 0
 
 def get_stats(col):
-    name, ignor = get_base_tag(col.__name__)
+    # name, ignor = get_base_tag(col.__name__)
+    name = col._collection._Collection__name
     return col._collection.database.command("collstats", name)
 
 def collections(db, show=False):
