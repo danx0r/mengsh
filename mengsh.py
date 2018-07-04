@@ -4,7 +4,7 @@
 import argparse, sys, time
 import psutil
 import mongoengine as meng
-from pp import pp
+from pprint import pformat
 
 parser = argparse.ArgumentParser(description=__doc__)
 
@@ -50,7 +50,7 @@ create_template="""
 class {0}(meng.DynamicDocument):
     _id = meng.DynamicField(primary_key = True)
     def __repr__(self):
-        return pp(self, as_str=True)
+        return pformat(self.to_mongo())
     meta = {{
         'collection': '{1}',
         'db_alias': '{2}'
