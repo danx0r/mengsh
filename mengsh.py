@@ -4,22 +4,16 @@
 import argparse, sys, time
 import psutil
 import mongoengine as meng
+import pymongo
 from pprint import pformat
 
-
 def _prompt_drop_collection(*args, **kw):
-    print
-    "drop", args, kw
-    print
-    "are you sure? (type 'yes' to proceed):"
-    if raw_input()[:3] == 'yes':
-        print
-        "ok, here goes"
+    print ("drop", args, kw)
+    if input("are you sure? (type 'yes' to proceed):")[:3] == 'yes':
+        print ("ok, here goes")
         _real_drop_collection(*args, **kw)
     else:
-        print
-        "ok, cancelled"
-
+        print ("drop_collection cancelled")
 
 _real_drop_collection = pymongo.database.Database.drop_collection
 pymongo.database.Database.drop_collection = _prompt_drop_collection
