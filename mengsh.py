@@ -6,6 +6,24 @@ import psutil
 import mongoengine as meng
 from pprint import pformat
 
+
+def _prompt_drop_collection(*args, **kw):
+    print
+    "drop", args, kw
+    print
+    "are you sure? (type 'yes' to proceed):"
+    if raw_input()[:3] == 'yes':
+        print
+        "ok, here goes"
+        _real_drop_collection(*args, **kw)
+    else:
+        print
+        "ok, cancelled"
+
+
+_real_drop_collection = pymongo.database.Database.drop_collection
+pymongo.database.Database.drop_collection = _prompt_drop_collection
+
 parser = argparse.ArgumentParser(description=__doc__)
 
 parser.add_argument('--host')    

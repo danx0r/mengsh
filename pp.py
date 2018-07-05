@@ -151,7 +151,9 @@ def pp(j, indent=0, as_str=False, maxlist=MAXLISTLEN):
         fout = sys.stdout
         return ret
 #     print "DEBUG pp top:", type(j), j, indent
-    if is_dicty(j):
+    if is_atomic(j):
+        pp_json_atom(j)
+    elif is_dicty(j):
         pp_json_dict(j, indent, typ="dict", maxlist=maxlist)
     elif is_listy(j):
         pp_json_list(j, indent, maxlist=maxlist)
