@@ -5,6 +5,8 @@ import argparse, sys, time
 import psutil
 import mongoengine as meng
 import pymongo
+import bson
+from pprint import pprint as pp
 from pprint import pformat
 
 def _prompt_drop_collection(*args, **kw):
@@ -62,7 +64,7 @@ create_template="""
 class {0}(meng.DynamicDocument):
     _id = meng.DynamicField(primary_key = True)
     def __repr__(self):
-        return pformat(self.to_mongo())
+        return pformat(self.to_mongo().to_dict())
     meta = {{
         'collection': '{1}',
         'db_alias': '{2}'
