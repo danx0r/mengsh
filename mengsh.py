@@ -49,8 +49,9 @@ def init():
             continue
         if mongo.find("mongodb://") != 0:
             mongo = "mongodb://127.0.0.1:27017/" + mongo
-    #     print mongo
+        print (mongo)
         con = meng.connect(host = mongo, alias=hostname, socketTimeoutMS=300000)
+        print (con)
         con.mengsh_alias = hostname
         hosts.append(con)
         db = con.get_default_database()
@@ -184,7 +185,7 @@ def copy(source,        #must be a collection
          dest,          #db, string, or collection
          resume = False,
          key = None,
-         die = 111,
+         die = 95,
          **kw):         #query filter on source to copy
     sname, ignore = get_base_tag(source.__name__)
     if type(dest) == str:
