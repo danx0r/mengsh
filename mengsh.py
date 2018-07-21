@@ -256,9 +256,8 @@ def copy(source,        #must be a collection
     reptarg = t0
 #     every = max(min(500, scnt//10), 1)
     for x in q:
-        if die < psutil.virtual_memory().percent:
-            print("memory full, abort")
-            exit()
+        if die <= psutil.virtual_memory().percent:
+            Exception("memory limit reached, abort")
 #         time.sleep(.001)
 #         print (" copying", x._id)
         xm = x.to_mongo()
