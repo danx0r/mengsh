@@ -185,7 +185,7 @@ def copy(source,        #must be a collection
          dest,          #db, string, or collection
          resume = False,
          key = None,
-         die = 95,
+         die = 85,
          **kw):         #query filter on source to copy
     sname, ignore = get_base_tag(source.__name__)
     if type(dest) == str:
@@ -257,6 +257,7 @@ def copy(source,        #must be a collection
 #     every = max(min(500, scnt//10), 1)
     for x in q:
         if die < psutil.virtual_memory().percent:
+            print("memory full, abort")
             exit()
 #         time.sleep(.001)
 #         print (" copying", x._id)
