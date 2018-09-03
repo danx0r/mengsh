@@ -175,10 +175,13 @@ def get_indices(col):
 #     pp(ind)
     ret = []
     for i in ind:
-        s = i['key'].keys()[0]
-        if i['key'][s] == -1:
-            s = "-" + s
-        ret.append(s)
+        ret.append([])
+        for s in i['key'].keys():
+            if i['key'][s] == -1:
+                s = "-" + s
+            ret[-1].append(s)
+        if len(ret[-1]) == 1:
+            ret[-1] = ret[-1][0]
     return ret
 
 def copy(source,        #must be a collection 
