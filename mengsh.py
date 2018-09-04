@@ -205,6 +205,9 @@ def ensure_indices_meta(o):
         except:
             print ("exception -- moving right along")
 
+def index_status():
+    return [(x['command']['indexes'], x['msg']) for x in db.current_op()['inprog'] if 'indexes' in x['command']]
+
 def copy(source,        #must be a collection
          dest,          #db, string, or collection
          resume = False,
