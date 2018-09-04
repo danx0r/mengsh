@@ -184,7 +184,28 @@ def get_indices(col):
             ret[-1] = ret[-1][0]
     return ret
 
-def copy(source,        #must be a collection 
+def get_indices_meta(o):
+    ret = []
+    for i in o._meta['index_specs']:
+        ret.append([])
+        j = i['fields']
+        for t in j:
+            s = t[0]
+            if t[1] == -1:
+                s = "-"+s
+            ret[-1].append(s)
+        if len(ret[-1]) == 1:
+            ret[-1] = ret[-1][0]
+    return ret
+
+def ensure_indices_meta(o):
+    for i in get_indices_meta(o):
+        try:
+            o.ensure_index(i, background=True)
+        except:
+            print ("exception -- moving right along")
+
+def copy(source,        #must be a collection
          dest,          #db, string, or collection
          resume = False,
          key = None,
