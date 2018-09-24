@@ -49,8 +49,9 @@ def init():
             continue
         if mongo.find("mongodb://") != 0:
             mongo = "mongodb://127.0.0.1:27017/" + mongo
-    #     print mongo
+        print (mongo)
         con = meng.connect(host = mongo, alias=hostname, socketTimeoutMS=300000)
+        print (con)
         con.mengsh_alias = hostname
         hosts.append(con)
         db = con.get_default_database()
@@ -174,17 +175,44 @@ def get_indices(col):
 #     pp(ind)
     ret = []
     for i in ind:
-        s = i['key'].keys()[0]
-        if i['key'][s] == -1:
-            s = "-" + s
-        ret.append(s)
+        ret.append([])
+        for s in i['key'].keys():
+            if i['key'][s] == -1:
+                s = "-" + s
+            ret[-1].append(s)
+        if len(ret[-1]) == 1:
+            ret[-1] = ret[-1][0]
     return ret
 
-def copy(source,        #must be a collection 
+def get_indices_meta(o):
+    ret = []
+    for i in o._meta['index_specs']:
+        ret.append([])
+        j = i['fields']
+        for t in j:
+            s = t[0]
+            if t[1] == -1:
+                s = "-"+s
+            ret[-1].append(s)
+        if len(ret[-1]) == 1:
+            ret[-1] = ret[-1][0]
+    return ret
+
+def ensure_indices_meta(o):
+    for i in get_indices_meta(o):
+        try:
+            o.ensure_index(i, background=True)
+        except:
+            print ("exception -- moving right along")
+
+def index_status():
+    return [(x['command']['indexes'], x['msg']) for x in db.current_op()['inprog'] if 'indexes' in x['command']]
+
+def copy(source,        #must be a collection
          dest,          #db, string, or collection
          resume = False,
          key = None,
-         die = 111,
+         die = 85,
          **kw):         #query filter on source to copy
     sname, ignore = get_base_tag(source.__name__)
     if type(dest) == str:
@@ -255,8 +283,8 @@ def copy(source,        #must be a collection
     reptarg = t0
 #     every = max(min(500, scnt//10), 1)
     for x in q:
-        if die < psutil.virtual_memory().percent:
-            exit()
+        if die <= psutil.virtual_memory().percent:
+            raise Exception("memory limit reached, abort")
 #         time.sleep(.001)
 #         print (" copying", x._id)
         xm = x.to_mongo()
