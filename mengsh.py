@@ -78,13 +78,18 @@ def create(*args, **kw):
     collectionname = classname
     host = kw[classname]
     classname = classname.replace('.','_')
+    classname = classname.replace('-','_')
     hostname = 'host'
     if host > 0:
         classname += "_%s" % host
         hostname += "%s" % host
     exe = create_template.format(classname, collectionname, hostname)
-#     print exe                        
-    exec(exe)
+#     print exe
+    try:
+        exec(exe)
+    except:
+        print ("failed:", collectionname)
+        return
     return globals()[classname]
     
 def refresh():
@@ -101,6 +106,8 @@ def refresh():
         for c in colnames:
             if c.find("system.") != 0:
                 col = create(**{c:i})
+                if col == None:
+                    continue
                 col.objects.limit(1)    #access forces _collection.database to exist
                 colcnt = col.objects.count()
                 totcol += colcnt
