@@ -213,7 +213,7 @@ def ensure_indices_meta(o):
             print ("exception -- moving right along")
 
 def index_status():
-    return [(x['msg']) for x in db.current_op()['inprog'] if 'msg' in x]
+    return [(x['command']['createIndexes'], x['msg']) for x in db.current_op()['inprog'] if 'msg' in x]
 
 def copy(source,        #must be a collection
          dest,          #db, string, or collection
