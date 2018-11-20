@@ -169,9 +169,15 @@ def collections(db, show=False):
 def count(col, field):
     col.objects.limit(1)    #access forces _collection to exist
     values = col._collection.distinct(field)
+    total = col._collection.count()
+    some = 0
     ret = []
     for v in values:
-        ret.append((v, col.objects(**{field: v}).count()))
+        if v != None:
+            cnt = col.objects(**{field: v}).count()
+            some += cnt
+            ret.append((v, cnt))
+    ret.append((None, total-some))
     ret.sort(key=lambda x:x[1], reverse=True)
     return ret
 
