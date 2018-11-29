@@ -194,7 +194,7 @@ def count_distinct(col, field, nones=False):
         ret.append((v, cnt))
     ret.sort(key=lambda x:x[1])
     ret.append(("__%sDOES_NOT_EXIST__" % ("" if nones else "None_OR_"), total-some))
-    ret.append(("__TOTAL__", total))
+    ret.append(("__TOTAL__", some))
     return ret
 
 def get_indices(col):
