@@ -167,19 +167,19 @@ def collections(db, show=False):
         return cols
 
 def count_distinct(col, field):
-    print ("NOTE: I treat non-existent fields as 'None'")
     col.objects.limit(1)    #access forces _collection to exist
     values = col._collection.distinct(field)
+    # print ("DISTINCT:", values)
     total = col._collection.count()
     some = 0
     ret = []
     for v in values:
-        if v != None:
-            cnt = col.objects(**{field: v}).count()
-            some += cnt
-            ret.append((v, cnt))
-    ret.append((None, total-some))
+        cnt = col.objects(**{field: v, field+"__exists": True}).count()
+        some += cnt
+        ret.append((v, cnt))
     ret.sort(key=lambda x:x[1], reverse=True)
+    ret.append(("__DOES_NOT_EXIST__", total-some))
+    ret.append(("__TOTAL__", total))
     return ret
 
 def get_indices(col):
