@@ -166,7 +166,8 @@ def collections(db, show=False):
         cols = [x[1] for x in cols]
         return cols
 
-def count(col, field):
+def count_distinct(col, field):
+    print ("NOTE: I treat non-existent fields as 'None'")
     col.objects.limit(1)    #access forces _collection to exist
     values = col._collection.distinct(field)
     ret = []
