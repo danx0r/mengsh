@@ -177,7 +177,12 @@ def count_distinct(col, field):
     some = 0
     ret = []
     for v in values:
-        cnt = col.objects(**{field: v, field+"__exists": True}).count()
+        # cnt = col.objects(**{field: v, field+"__exists": True}).count()
+        q = {'$and': [{field: v}, {field: {'$exists': True}}]}
+        try:
+            cnt = col._collection.count_documents(q)
+        except:
+            cnt = col._collection.find(q).count()
         some += cnt
         ret.append((v, cnt))
     ret.sort(key=lambda x:x[1], reverse=True)
