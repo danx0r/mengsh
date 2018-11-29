@@ -5,6 +5,7 @@ import argparse, sys, time
 import psutil
 import mongoengine as meng
 import pymongo
+import traceback
 import bson
 from pprint import pprint as pp
 from pprint import pformat
@@ -166,7 +167,7 @@ def collections(db, show=False):
         cols = [x[1] for x in cols]
         return cols
 
-def count_distinct(col, field):
+def count_distinct(col, field, nones=False):
     col.objects.limit(1)    #access forces _collection to exist
     values = col._collection.distinct(field)
     # print ("DISTINCT:", values)
@@ -177,16 +178,22 @@ def count_distinct(col, field):
     some = 0
     ret = []
     for v in values:
+        if not nones and v == None:
+            continue
         # cnt = col.objects(**{field: v, field+"__exists": True}).count()
         q = {'$and': [{field: v}, {field: {'$exists': True}}]}
         try:
             cnt = col._collection.count_documents(q)
         except:
-            cnt = col._collection.find(q).count()
+            if 'Collection' in str(sys.exc_info()):
+                cnt = col._collection.find(q).count()
+            else:
+                traceback.print_exc()
+                return
         some += cnt
         ret.append((v, cnt))
     ret.sort(key=lambda x:x[1])
-    ret.append(("__DOES_NOT_EXIST__", total-some))
+    ret.append(("__%sDOES_NOT_EXIST__" % ("" if nones else "None_OR_"), total-some))
     ret.append(("__TOTAL__", total))
     return ret
 
