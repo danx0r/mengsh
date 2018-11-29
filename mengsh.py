@@ -185,7 +185,7 @@ def count_distinct(col, field):
             cnt = col._collection.find(q).count()
         some += cnt
         ret.append((v, cnt))
-    ret.sort(key=lambda x:x[1], reverse=True)
+    ret.sort(key=lambda x:x[1])
     ret.append(("__DOES_NOT_EXIST__", total-some))
     ret.append(("__TOTAL__", total))
     return ret
