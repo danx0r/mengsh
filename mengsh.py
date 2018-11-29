@@ -170,7 +170,10 @@ def count_distinct(col, field):
     col.objects.limit(1)    #access forces _collection to exist
     values = col._collection.distinct(field)
     # print ("DISTINCT:", values)
-    total = col._collection.count()
+    try:
+        total = col._collection.estimated_document_count()
+    except:
+        total = col._collection.count()
     some = 0
     ret = []
     for v in values:
