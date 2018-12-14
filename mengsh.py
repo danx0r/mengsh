@@ -51,7 +51,7 @@ def init():
         if mongo.find("mongodb://") != 0:
             mongo = "mongodb://127.0.0.1:27017/" + mongo
         print (mongo)
-        con = meng.connect(host = mongo, alias=hostname, socketTimeoutMS=300000)
+        con = meng.connect(host = mongo, alias=hostname, socketTimeoutMS=30000000)
         print (con)
         con.mengsh_alias = hostname
         hosts.append(con)
