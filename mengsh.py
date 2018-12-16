@@ -212,7 +212,7 @@ def get_indices(col):
         for s in i['key'].keys():
             if i['key'][s] == -1:
                 s = "-" + s
-            ret[-1].append(s)
+            ret[-1].append((s, i['key'][s]))
         if len(ret[-1]) == 1:
             ret[-1] = ret[-1][0]
     return ret
