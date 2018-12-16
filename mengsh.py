@@ -1,7 +1,7 @@
 #
 # Set of utilities to manage multiple mongodb databases, collections, and hosts
 #
-import argparse, sys, time
+import argparse, sys, time, os
 import psutil
 import mongoengine as meng
 import pymongo
@@ -350,6 +350,19 @@ def copy(source,        #must be a collection
             print ("creating index", "NOT" if not real else "", ix)
             if real:
                 dest.create_index(ix)
+
+def explain_query(q, col=None):
+    #
+    # Just the queryPlan please -- unavailable from pymongo
+    #
+    try:
+        col = q._collection.name
+        q = q._query # for cursor
+    except:
+        pass
+    cmd  = 'echo "db.%s.find(%s).explain()" | mongo "%s"' % (col, q, args.host)
+    print (cmd)
+    os.system(cmd)
 
 init()
 refresh()
