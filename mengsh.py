@@ -51,7 +51,7 @@ def init():
         if mongo.find("mongodb://") != 0:
             mongo = "mongodb://127.0.0.1:27017/" + mongo
         print (mongo)
-        con = meng.connect(host = mongo, alias=hostname, socketTimeoutMS=300000)
+        con = meng.connect(host = mongo, alias=hostname, socketTimeoutMS=30000000)
         print (con)
         con.mengsh_alias = hostname
         hosts.append(con)
@@ -168,13 +168,17 @@ def collections(db, show=False):
         return cols
 
 def count_distinct(col, field, nones=False):
-    col.objects.limit(1)    #access forces _collection to exist
-    values = col._collection.distinct(field)
+    try:
+        col.objects.limit(1)    #access forces _collection to exist
+        col = col._collection
+    except:
+        pass
+    values = col.distinct(field)
     # print ("DISTINCT:", values)
     try:
-        total = col._collection.estimated_document_count()
+        total = col.estimated_document_count()
     except:
-        total = col._collection.count()
+        total = col.count()
     some = 0
     ret = []
     for v in values:
@@ -183,10 +187,10 @@ def count_distinct(col, field, nones=False):
         # cnt = col.objects(**{field: v, field+"__exists": True}).count()
         q = {'$and': [{field: v}, {field: {'$exists': True}}]}
         try:
-            cnt = col._collection.count_documents(q)
+            cnt = col.count_documents(q)
         except:
-            if 'Collection' in str(sys.exc_info()):
-                cnt = col._collection.find(q).count()
+            if 'count_documents' in str(sys.exc_info()):
+                cnt = col(__raw__=q).count()
             else:
                 traceback.print_exc()
                 return
