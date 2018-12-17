@@ -1,7 +1,7 @@
 #
 # Set of utilities to manage multiple mongodb databases, collections, and hosts
 #
-import argparse, sys, time, os, subprocess
+import argparse, sys, time, os, subprocess, json
 import psutil
 import mongoengine as meng
 import pymongo
@@ -364,7 +364,8 @@ def explain_query(q, col=None, verbose=False):
         q = q._query # for cursor
     except:
         pass
-    cmd  = 'echo "db.%s.find(%s).explain()" | mongo "%s"' % (col, q, args.host)
+    q = json.dumps(q)
+    cmd  = "echo 'db.%s.find(%s).explain()' | mongo '%s'" % (col, q, args.host)
     if verbose:
         print (cmd)
 #    os.system(cmd)
