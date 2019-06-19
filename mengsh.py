@@ -236,6 +236,7 @@ def ensure_indices_meta(o):
         try:
             o.ensure_index(i, background=True)
         except:
+            traceback.print_exc()
             print ("exception -- moving right along")
 
 def index_status():
