@@ -1,7 +1,7 @@
 #
 # Set of utilities to manage multiple mongodb databases, collections, and hosts
 #
-import argparse, sys, time
+import argparse, sys, time, os, subprocess, json
 import psutil
 import mongoengine as meng
 import pymongo
@@ -212,7 +212,7 @@ def get_indices(col):
         for s in i['key'].keys():
             if i['key'][s] == -1:
                 s = "-" + s
-            ret[-1].append(s)
+            ret[-1].append((s, i['key'][s]))
         if len(ret[-1]) == 1:
             ret[-1] = ret[-1][0]
     return ret
@@ -368,5 +368,34 @@ def copy(source,        #must be a collection
             if real:
                 dest.create_index(ix)
 
+def explain_query(q, col=None, verbose=False):
+    #
+    # Just the queryPlan please -- unavailable from pymongo
+    #
+    try:
+        col = q._collection.name
+        q = q._query # for cursor
+    except:
+        pass
+    q = json.dumps(q)
+    cmd  = "echo 'db.%s.find(%s).explain()' | mongo '%s'" % (col, q, args.host)
+    if verbose:
+        print (cmd)
+#    os.system(cmd)
+    ret = subprocess.check_output(cmd, shell=True)
+    ret = ret.decode('utf8')
+    if verbose:
+        print(ret)
+    else:
+        if "COLLSCAN" in ret:
+            print("looks like no index; query will be slow")
+        elif "indexName" in ret:
+            rows = ret.split("\n")
+            for row in rows:
+                if "indexName" in row:
+                    ix = row.split(":")[-1].strip()[:-1]
+            print("looks like this query will use an index: %s" % ix)
+        else:
+            print("I don't understand the output; run again with verbose=True")
 init()
 refresh()
