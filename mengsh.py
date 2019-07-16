@@ -363,11 +363,14 @@ def copy(source,        #must be a collection
             sys.stdout.flush()
     print ("")
     sys.stdout.flush()
-    for ix in get_indices(source):
-        if ix != "_id":
-            print ("creating index", "NOT" if not real else "", ix)
-            if real:
-                dest.create_index(ix)
+    try:
+        for ix in get_indices(source):
+            if ix != "_id":
+                print ("creating index", "NOT" if not real else "", ix)
+                if real:
+                    dest.create_index(ix)
+    except:
+        print ("failure to create indexes")
 
 def explain_query(q, col=None, verbose=False):
     #
