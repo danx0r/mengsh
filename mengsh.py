@@ -230,7 +230,10 @@ def redundant_indices(col):
             if ix == iy[:len(ix)]:
                 print ("%s is subset of %s" % (ix, iy))
                 red.add(str(ix))
-    return red
+    ret = []
+    for x in red:
+        ret.append(eval(x))
+    return ret
 
 def get_indices_meta(o):
     ret = []
