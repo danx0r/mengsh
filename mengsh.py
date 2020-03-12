@@ -48,7 +48,7 @@ def init():
         mongo = getattr(args, hostname)
         if not mongo:
             continue
-        if mongo.find("mongodb://") != 0:
+        if mongo.find("mongodb") != 0:
             mongo = "mongodb://127.0.0.1:27017/" + mongo
         print (mongo)
         con = meng.connect(host = mongo, alias=hostname, socketTimeoutMS=30000000)
