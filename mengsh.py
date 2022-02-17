@@ -210,9 +210,10 @@ def get_indices(col):
     for i in ind:
         ret.append([])
         for s in i['key'].keys():
+            ss = s
             if i['key'][s] == -1:
                 s = "-" + s
-            ret[-1].append((s, i['key'][s]))
+            ret[-1].append((s, i['key'][ss]))
         if len(ret[-1]) == 1:
             ret[-1] = ret[-1][0]
     return ret
