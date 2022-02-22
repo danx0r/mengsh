@@ -2,3 +2,4 @@ ipython
 pymongo
 mongoengine
 psutil
+dnspython
