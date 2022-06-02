@@ -1,5 +1,5 @@
 ipython
-pymongo
+pymongo<4
 mongoengine
 psutil
 dnspython
