@@ -102,7 +102,7 @@ def refresh():
         i = 0 if hostname=='host' else int(hostname.replace('host', ''))
         d = globals()[hostname.replace('host', 'db')]
         print(i, d)
-        colnames = d.collection_names()
+        colnames = d.list_collection_names()
         colnames.sort()
         for c in colnames:
             if c.find("system.") != 0:
@@ -151,7 +151,7 @@ def get_stats(col):
 def collections(db, show=False):
     tag = tag_to_string(get_host_tag(db))
     cols = []
-    for x in db.collection_names():
+    for x in db.list_collection_names():
         x += tag
         try:
             c = globals()[x]
