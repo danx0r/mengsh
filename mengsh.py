@@ -110,7 +110,7 @@ def refresh():
                 if col == None:
                     continue
                 col.objects.limit(1)    #access forces _collection.database to exist
-                colcnt = col.objects.count()
+                colcnt = col._collection.estimated_document_count()
                 totcol += colcnt
                 try:
                     info = get_stats(col)
@@ -175,10 +175,7 @@ def count_distinct(col, field, nones=False):
         pass
     values = col.distinct(field)
     # print ("DISTINCT:", values)
-    try:
-        total = col.estimated_document_count()
-    except:
-        total = col.count()
+    total = col.estimated_document_count()
     some = 0
     ret = []
     for v in values:
@@ -289,7 +286,7 @@ def copy(source,        #must be a collection
 #     print ("dest:", dest)
     if resume:
         q = dest.objects().order_by("-_id")
-        if q.count():
+        if q.count(limit=1, with_limit_and_skip=True):
             t = q[0].id
             kw.update({"_id__gte": t})
     print("query:", kw)
